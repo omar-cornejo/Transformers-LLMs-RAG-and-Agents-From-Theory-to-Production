@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EASY-CHATGPT</title>
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>EASY-CHATGPT</h1>
+      <div class="header-controls">
+        <button id="toggleContextBtn" title="Toggle context view">Context</button>
+        <button id="newChatBtn" title="New conversation">New Chat</button>
+        <select id="modeSelect">
+          <option value="baseline">Baseline</option>
+          <option value="stream" selected>Streaming</option>
+          <option value="vision">Vision</option>
+        </select>
+      </div>
+    </header>
+
+    <main>
+      <div id="chat-container">
+        <div id="chat-messages"></div>
+        <div id="input-area">
+          <div id="image-preview" class="hidden">
+            <img id="preview-img" alt="Uploaded image">
+            <button id="remove-image-btn">&times;</button>
+          </div>
+          <div class="input-row">
+            <label id="image-upload-label" class="hidden" for="image-input" title="Attach image">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+            </label>
+            <input type="file" id="image-input" accept="image/*" class="hidden">
+            <textarea id="message-input" rows="1" placeholder="Type your message..."></textarea>
+            <button id="send-btn">Send</button>
+          </div>
+        </div>
+      </div>
+
+      <aside id="context-panel" class="hidden">
+        <h2>Context View</h2>
+        <div id="token-usage">
+          <h3>Token Usage</h3>
+          <p>Prompt: <span id="prompt-tokens">0</span></p>
+          <p>Completion: <span id="completion-tokens">0</span></p>
+          <p>Total: <span id="total-tokens">0</span></p>
+        </div>
+        <div id="messages-sent">
+          <h3>Messages Sent to Model</h3>
+          <pre id="messages-json"></pre>
+        </div>
+        <div id="conversation-id-container">
+          <h3>Conversation ID</h3>
+          <code id="conversation-id-display">-</code>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="static/script.js"></script>
+</body>
+</html>

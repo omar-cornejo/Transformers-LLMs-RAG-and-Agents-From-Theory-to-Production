@@ -32,7 +32,6 @@ Thumbs.db
 
 # Local env files
 .env
-.env.*
 
 # Hugging Face / model cache if created inside the week folder
 .cache/
