@@ -1,0 +1,37 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama_data:/root/.ollama
+      - ./ollama-entrypoint.sh:/entrypoint.sh
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+      - LLM_MODEL=${LLM_MODEL:-qwen2.5:1.5b}
+      - LLM_VISION_MODEL=${LLM_VISION_MODEL:-moondream:1.8b}
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+    healthcheck:
+      test: ollama list > /dev/null 2>&1
+      interval: 5s
+      retries: 100
+      start_period: 5s
+    restart: unless-stopped
+
+  easy-chatgpt:
+    build: ./backend
+    ports:
+      - "6661:8000"
+    environment:
+      - LLM_BASE_URL=http://ollama:11434/v1
+      - LLM_API_KEY=ollama
+      - LLM_MODEL=${LLM_MODEL:-qwen2.5:1.5b}
+      - LLM_VISION_MODEL=${LLM_VISION_MODEL:-moondream:1.8b}
+      - SYSTEM_PROMPT=${SYSTEM_PROMPT:-You are a context-bound assistant for Dragon Ball questions. Answer only when the provided context supports the response. If the question is outside that scope, refuse briefly and do not guess. Respond in Markdown when formatting is useful.}
+    volumes:
+      - ./backend/frontend:/app/frontend
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
