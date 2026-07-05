@@ -28,6 +28,21 @@ SYSTEM_PROMPT = os.environ.get(
 )
 
 conversations = {}
+OUT_OF_SCOPE_REPLY = "I don't have that information in the provided context."
+
+
+def is_within_context(user_message: str) -> bool:
+    return rag_agent.is_in_scope(user_message)
+
+
+def refusal_payload(conversation_id: str) -> dict:
+    return {
+        "conversation_id": conversation_id,
+        "reply": OUT_OF_SCOPE_REPLY,
+        "available_topics": rag_agent.get_supported_topics(),
+        "token_usage": None,
+        "messages_sent": None,
+    }
 
 frontend_path = Path(__file__).parent / "frontend"
 if frontend_path.exists():
@@ -80,6 +95,9 @@ async def chat(request: ChatRequest):
     conv_id = get_or_create_conversation(request.conversation_id)
     conv = conversations[conv_id]
 
+    if not is_within_context(request.message):
+        return refusal_payload(conv_id)
+
     rag_enriched_message = rag_agent.get_promt(request.message)
     messages = build_messages_for_openai(conv["messages"], rag_enriched_message)
 
@@ -114,6 +132,13 @@ async def chat(request: ChatRequest):
 async def chat_stream(request: ChatRequest):
     conv_id = get_or_create_conversation(request.conversation_id)
     conv = conversations[conv_id]
+
+    if not is_within_context(request.message):
+        async def refusal_stream():
+            yield f"data: {json.dumps({'type': 'token', 'content': OUT_OF_SCOPE_REPLY})}\n\n"
+            yield f"data: {json.dumps({'type': 'done', 'conversation_id': conv_id, 'token_usage': None, 'messages_sent': None, 'available_topics': rag_agent.get_supported_topics()})}\n\n"
+
+        return StreamingResponse(refusal_stream(), media_type="text/event-stream")
 
     rag_enriched_message = rag_agent.get_promt(request.message)
     messages = build_messages_for_openai(conv["messages"], rag_enriched_message)

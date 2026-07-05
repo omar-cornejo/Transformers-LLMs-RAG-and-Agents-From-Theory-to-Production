@@ -25,7 +25,7 @@ services:
       - LLM_API_KEY=ollama
       - LLM_MODEL=${LLM_MODEL:-qwen2.5:1.5b}
       - LLM_VISION_MODEL=${LLM_VISION_MODEL:-moondream:1.8b}
-      - SYSTEM_PROMPT=${SYSTEM_PROMPT:-You are a helpful assistant. Respond in Markdown when formatting is useful.}
+      - SYSTEM_PROMPT=${SYSTEM_PROMPT:-You are a context-bound assistant for Dragon Ball questions. Answer only when the provided context supports the response. If the question is outside that scope, refuse briefly and do not guess. Respond in Markdown when formatting is useful.}
     volumes:
       - ./backend/frontend:/app/frontend
     depends_on:
